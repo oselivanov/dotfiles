@@ -1,8 +1,12 @@
 " Author: Oleg Selivanov <oleg.a.selivanov@gmail.com>
 
 " Hi stranger. If you here by the accident and know how to do some things
-" you can see in this file better, do not hesistate to write me few words by
+" you can see in this file better, do not hesitate to send me a note by the
 " email! :)
+
+if (match(system('hostname'), 'oleg-MacBook-Pro') >= 0)
+  let g:i_am_home = 1
+endif
 
 " TODO(oleg): Switch to vundle.
 " Setup pathogen.
@@ -12,7 +16,7 @@ call pathogen#infect()
 runtime macros/matchit.vim
 
 " Editor defaults.
-syntax enable
+syntax on
 set history=1000
 set timeoutlen=500
 set ttimeoutlen=0
@@ -24,15 +28,45 @@ set hlsearch
 set ignorecase
 set smartcase
 set scrolloff=10
-set colorcolumn=81
+set colorcolumn=101
 set wildmode=list,full
 set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/tmp/*,*/*.pyc,*/*.jpg,*/*.png,*/*.gif
 set backspace=indent,eol,start
 set nofoldenable
+let skip_defaults_vim=1
+set viminfo=
 
 " Makes vim more responsive in iTerm2.
 set ttyfast
 set lazyredraw
+
+" Set better leader.
+let mapleader=","
+
+" Turn mouse support on to prevent terminal from receiving events.
+set mouse=a
+
+" Unbind mouse wheel events.
+nmap <ScrollWheelUp> <nop>
+nmap <S-ScrollWheelUp> <nop>
+nmap <C-ScrollWheelUp> <nop>
+nmap <ScrollWheelDown> <nop>
+nmap <S-ScrollWheelDown> <nop>
+nmap <C-ScrollWheelDown> <nop>
+
+imap <ScrollWheelUp> <nop>
+imap <S-ScrollWheelUp> <nop>
+imap <C-ScrollWheelUp> <nop>
+imap <ScrollWheelDown> <nop>
+imap <S-ScrollWheelDown> <nop>
+imap <C-ScrollWheelDown> <nop>
+
+nmap <ScrollWheelUp> <nop>
+nmap <S-ScrollWheelUp> <nop>
+nmap <C-ScrollWheelUp> <nop>
+nmap <ScrollWheelDown> <nop>
+nmap <S-ScrollWheelDown> <nop>
+nmap <C-ScrollWheelDown> <nop>
 
 " Setup smart indent and fix its issue.
 set autoindent
@@ -40,7 +74,12 @@ set smartindent
 " Fix smartindent for hash key (#).
 inoremap # X<BS>#
 
-" One line commnand area.
+" Set spelling correction.
+set spell
+nmap <leader>f 1z=
+nmap <leader>F z=
+
+" One line command area.
 set cmdheight=1
 set shortmess=atI
 
@@ -50,10 +89,10 @@ set nowritebackup
 set noswapfile
 
 " Linux settings.
-"let g:solarized_termcolors = 16
+"let g:soarized_termcolors = 16
 "set t_Co=16
 " Mac settings.
-set background=light
+set background=dark
 colorscheme solarized
 let g:solarized_visibility="high"
 let g:solarized_contrast="high"
@@ -67,21 +106,33 @@ set hidden
 " Use system clipboard ("sudo aptitude install vim-gnome" required for Ubuntu).
 set clipboard=unnamed
 
+" Restore second layout after leaving insert mode.
+let g:kls_insertEnterRestoresLast = 1
 
 " Fix navigation through the wrapped lines.
 nnoremap j gj
 nnoremap k gk
 
 " Disable moving cursor back after returning to the command mode.
-inoremap <Esc> <Esc>g`^
+"inoremap <Esc> <Esc>g`^
 
 " Remove last search highlight.
-nnoremap <Esc> :noh<Cr>
-nnoremap c :nunmap c<Cr>
+" DEBUG: Conflicts with neovim.
+" nnoremap <Esc> :noh<Cr>
+nnoremap c :nunmap c<Cr>c<Esc>
 
 " Use plain old regex without any magic.
 " Hint - do the replaces using :%s//to/g
 nnoremap / /\v
+
+" Use * to just highlight occurences, disable jumpimg to the next one.
+nnoremap * #*
+
+" Common typo correction.
+nnoremap q: :q
+
+" Don't select newline character when using $
+vnoremap $ $h
 
 " Use control h/l to navigate in command mode (pretty useful for file renaming).
 cnoremap <c-h> <left>
@@ -94,39 +145,44 @@ nnoremap ^ 0
 nnoremap > >>
 nnoremap < <<
 
-" Word walking by default, for char walking I'm using space.
+" Working w/ words by default, not w/ characters.
 nnoremap h b
-nnoremap l w
-nnoremap L e
-nnoremap H b
+nnoremap l e
 vnoremap h b
-vnoremap l w
-vnoremap L e
-vnoremap H b
-
-" Fast buffer switching.
-nnoremap <c-j> <c-w>j
-nnoremap <c-k> <c-w>k
-nnoremap <c-h> <c-w>h
-nnoremap <c-l> <c-w>l
+vnoremap l e
+nnoremap x "_x
 
 " Tab management.
 nnoremap tn :tabnew<cr>
 nnoremap tl :tabnext<cr>
 nnoremap th :tabprev<cr>
+nnoremap t< :tabmove -1<cr>
+nnoremap t> :tabmove +1<cr>
 
-" Split management.
+" Fast buffer switching and split management.
+nnoremap wj <c-w>j
+nnoremap wk <c-w>k
+nnoremap wh <c-w>h
+nnoremap wl <c-w>l
+nmap wx <c-w>x
+nnoremap wo :call MyOpen()<cr>
+nmap wJ :set splitbelow<cr>:split<cr>:call MyOpen()<cr>
+nmap wK :set nosplitbelow<cr>:split<cr>:call MyOpen()<cr>
+nmap wL :set splitright<cr>:vsplit<cr>:call MyOpen()<cr>
+nmap wH :set nosplitright<cr>:vsplit<cr>:call MyOpen()<cr>
+"nmap <c-l> <c-w>=:redraw!<cr>
+nnoremap <c-l> <c-w>=:call SmartResize()<cr>
+" :resize 1000<cr>
 nmap <c-w>v <nop>
 nmap <c-w>s <nop>
 imap <c-w>v <nop>
 imap <c-w>s <nop>
 vmap <c-w>v <nop>
 vmap <c-w>s <nop>
-nmap wj :set splitbelow<cr>:split<cr>
-nmap wk :set nosplitbelow<cr>:split<cr>
-nmap wl :set splitright<cr>:vsplit<cr>
-nmap wh :set nosplitright<cr>:vsplit<cr>
-nmap wx <c-w>x
+" autocmd FileType nerdtree silent! nmap <buffer> <cr> e
+autocmd FileType nerdtree silent! nmap <buffer> l o
+autocmd FileType nerdtree silent! nmap <buffer> h o
+let NERDTreeShowHidden=1
 
 " Start the find and replace command across the entire file.
 vnoremap <leader>r <Esc>:%smagic/<c-r>=GetVisual()<cr>//g<left><left>
@@ -134,26 +190,48 @@ vnoremap <leader>r <Esc>:%smagic/<c-r>=GetVisual()<cr>//g<left><left>
 " Function to switch between source and header files.
 nnoremap <c-y> :call SwitchSourceHeader()<CR>
 
+" Compile latex.
+nnoremap <leader>l :call LatexToPdf()<CR>
+
 
 " Turn on filetype.
 filetype on
 filetype plugin on
 
 " Cursor line highlighting only in insert mode.
+"autocmd BufEnter * resize 1000
 autocmd InsertEnter * set cursorline
 autocmd InsertLeave * set nocursorline
 
-" Auto strip file contents before saving for selected filetypes.
-autocmd FileType python,javascript,haskell,c,cpp,php,haxe,vim,apache,html,xhtml,xml,css,less,ruby,eruby,htmldjango,sh autocmd BufWritePre <buffer> silent :%s/\s\+$//e
-
 " Setup filetypes for stuff I'm using.
-autocmd BufNewFile,BufRead wscript setfiletype python
-autocmd BufNewFile,BufRead *.cc setfiletype cpp
-autocmd BufNewFile,BufRead *.hx setfiletype haxe
-autocmd BufNewFile,BufRead *.flagfile setfiletype dosini
+autocmd BufNewFile,BufRead wscript set ft=python
+autocmd BufNewFile,BufRead *.ipy set ft=python
+autocmd BufNewFile,BufRead *.cc set ft=cpp
+autocmd BufNewFile,BufRead *.hx set ft=haxe
+autocmd BufNewFile,BufRead *.flagfile set ft=dosini
+autocmd BufNewFile,BufRead *.sls set ft=yaml
+autocmd BufNewFile,BufRead *.template set ft=json
+autocmd BufNewFile,BufRead *.policy set ft=json
+autocmd BufNewFile,BufRead *.j2 set ft=jinja2
+autocmd BufNewFile,BufRead Saltfile set ft=yaml
+autocmd BufNewFile,BufRead roster set ft=yaml
+autocmd BufNewFile,BufRead Vagrantfile set ft=ruby
+
+" Auto strip file contents before saving.
+" Fortunatelly I don't use whitespace programming language :)
+function! MyStripTrailingWhitespaces()
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    call cursor(l, c)
+endfun
+
+autocmd BufWritePre * silent :call MyStripTrailingWhitespaces()
+" autocmd FileType * autocmd BufWritePre <buffer> silent :%s/\s\+$//e
 
 autocmd FileType python setlocal ts=4 sts=4 sw=4 et
-autocmd FileType htmldjango setlocal ts=2 sts=2 sw=2 et
+autocmd FileType htmldjango setlocal iskeyword+=\- ts=2 sts=2 sw=2 et
+autocmd FileType jinja2 setlocal iskeyword+=\- ts=2 sts=2 sw=2 et
 autocmd FileType ruby setlocal iskeyword+=\$ ts=2 sts=2 sw=2 et
 autocmd FileType eruby setlocal iskeyword+=\> iskeyword+=\- ts=2 sts=2 sw=2 et
 autocmd FileType haskell setlocal ts=4 sts=4 sw=4 et
@@ -163,62 +241,100 @@ autocmd FileType objc setlocal ts=2 sts=2 sw=2 et
 autocmd FileType haxe setlocal ts=2 sts=2 sw=2 et
 autocmd FileType cpp setlocal ts=2 sts=2 sw=2 et
 autocmd FileType c setlocal ts=2 sts=2 sw=2 et
+autocmd FileType glsl setlocal ts=2 sts=2 sw=2 et
 autocmd FileType php setlocal iskeyword+=\$ ts=2 sts=2 sw=2 et
 autocmd FileType lua setlocal ts=2 sts=2 sw=2 et
 autocmd FileType lisp setlocal iskeyword+=\- ts=2 sts=2 sw=2 et
+autocmd FileType asm setlocal iskeyword+=\- ts=4 sts=4 sw=4 et
+autocmd FileType cfg setlocal iskeyword+=\- ts=2 sts=2 sw=2 et
 
 autocmd FileType javascript setlocal iskeyword+=\- ts=2 sts=2 sw=2 et
 autocmd FileType coffee setlocal ts=4 sts=4 sw=4 et
-autocmd FileType html setlocal iskeyword+=\> iskeyword+=\- ts=2 sts=2 sw=2 et
+autocmd FileType html setlocal iskeyword+=\- ts=2 sts=2 sw=2 et
 autocmd FileType xhtml setlocal ts=2 sts=2 sw=2 et
 autocmd FileType xml setlocal ts=2 sts=2 sw=2 et
 autocmd FileType css setlocal iskeyword+=\- ts=2 sts=2 sw=2 et
 
-autocmd FileType vim setlocal ts=4 sts=4 sw=4 et
+autocmd FileType vim setlocal ts=2 sts=2 sw=2 et
 autocmd FileType apache setlocal ts=2 sts=2 sw=2 noet
+autocmd FileType make setlocal ts=8 sts=8 sw=8 noet
 autocmd FileType yaml setlocal ts=2 sts=2 sw=2 et
 autocmd FileType sh setlocal ts=2 sts=2 sw=2 et
+autocmd FileType tex setlocal ts=2 sts=2 sw=2 et tw=79 fo=taw21 "spelllang=en,ru_yo
+autocmd FileType text setlocal ts=2 sts=2 sw=2 et tw=79 "spelllang=en,ru_yo
+
+" Markdown preview on write.
+let vim_markdown_preview_toggle=2
 
 " Airline settings.
 set laststatus=2
-let g:airline_powerline_fonts=1
-let g:airline#extensions#tabline#enabled=1
-let g:airline#extensions#tabline#show_buffers=0
-let g:airline#extensions#tabline#tab_min_count=2
+if exists("g:i_am_home")
+  let g:airline_powerline_fonts=1
+  let g:airline#extensions#tabline#enabled=1
+  let g:airline#extensions#tabline#show_buffers=0
+  let g:airline#extensions#tabline#tab_min_count=2
+  let g:airline_section_x=''
+  let g:airline_section_y=''
+endif
 
 " Hack to disable parenteses highlight.
 let loaded_matchparen=1
 
 " CtrlP plugin settings.
-let g:ctrlp_map = '<c-p>'
-let g:ctrlp_regexp=1
-let g:ctrlp_by_filename=1
-let g:ctrlp_max_height=3
-let g:ctrlp_working_path_mode=2
-let g:ctrlp_by_filename=0
-let g:ctrlp_use_caching=0
-let g:ctrlp_clear_cache_on_exit=1
-let g:ctrlp_max_files=5000
-let g:ctrlp_follow_symlinks=1
-let g:ctrlp_user_command = {
-    \ 'types': {
-      \ 1: ['.git', 'cd %s && git ls-files -cmo --directory | sort | uniq | grep -v "\.\(gif\|jpg\|png\|mp3\|avi\|ogv\)$"'],
-      \ },
-    \ 'fallback': 'find %s -type f -maxdepth 1',
-    \ }
-let g:ctrlp_custom_ignore = '\.(jpg\|png\|gif\|mp3\|avi\|ogv\|pyc)$'
+" let g:ctrlp_map = '<c-p>'
+" let g:ctrlp_regexp=1
+" let g:ctrlp_by_filename=1
+" let g:ctrlp_max_height=3
+" let g:ctrlp_working_path_mode=2
+" let g:ctrlp_by_filename=0
+" let g:ctrlp_use_caching=0
+" let g:ctrlp_clear_cache_on_exit=1
+" let g:ctrlp_max_files=5000
+" let g:ctrlp_show_hidden=1
+" let g:ctrlp_follow_symlinks=1
+" let g:ctrlp_user_command = " {
+"     \ 'types': {
+"       \ 1: ['.git', 'cd %s && git ls-files -cmo --directory | sort | uniq | grep -v "\.\(pyc\|gif\|jpg\|png\|mp3\|avi\|ogv\)$"'],
+"       \ },
+"     \ 'fallback': 'find -L %s -type f -maxdepth 1',
+"     \ }
 
-" Setup netrw.
+" Setup NERDTree.
+let g:NERDTreeMinimalUI = 1
 let g:bufExplorerShowRelativePath=1
-let g:netrw_banner=0
 
-" Syntactic setup.
-let g:syntastic_python_checkers=['flake8']
-let g:syntastic_ruby_checkers=['rubocop']
-let g:syntastic_python_flake8_args='--ignore=E126,E128,E131 --max-line-length=80'
-let g:syntastic_cpp_compiler = 'clang++'
-let g:syntastic_cpp_compiler_options = '-std=c++11'
+" Disable netrw.
+let g:loaded_netrwPlugin = 1
+" let g:netrw_banner=0
+" let g:netrw_list_hide= '.*\.\(pyc\|obj\|o\)$'
+" let g:netrw_sort_sequence='[\/]$'
 
+" Syntastic setup.
+if exists("g:i_am_home")
+  let g:syntastic_mode_map = { 'mode': 'active', 'active_filetypes': [],'passive_filetypes': [] }
+  nnoremap <leader>f :SyntasticCheck<CR>
+  let g:syntastic_check_on_open = 0
+  let g:syntastic_python_checkers=['flake8', 'black']
+  let g:syntastic_python_flake8_args='--ignore=E203,E266,E501,W503 --max-line-length=90'
+  let g:syntastic_cpp_compiler = 'clang++'
+  let g:syntastic_cpp_compiler_options = '-std=c++11'
+endif
+
+function MyOpen()
+  if bufname('%') == ''
+    :e .
+  else
+    :e %:p:h
+  endif
+endfunction
+
+function SmartResize()
+  let col = execute('set columns')
+  let new_col = float2nr(str2float(substitute(col, 'columns=', '', '')) * 0.57 + 0.5)
+  execute 'vertical resize ' . string(new_col)
+  execute 'redraw!'
+  echom 'new buffer width is ' . new_col
+endfunction
 
 " This function is used for lightweight sessions - see homebin/vvim for details.
 function! CloseInactiveAndHiddenBuffers()
@@ -314,4 +430,29 @@ function! GetVisual() range
   let escaped_selection = EscapeString(selection)
 
   return escaped_selection
+endfunction
+
+" Some code with make possible to run CtrlP from within zsh with <c-p> keystroke
+" and close it if you hit <Esc> when CtrlP opened in that vim for the first
+" time.
+" This snippet doesn't work with mainline ctrlp.vim, small patch should be
+" applied.
+function! CtrlPExitFunc()
+  if !g:ctrlp_file_accepted && g:ctrlp_first_time
+    normal! ZZZZ
+  endif
+  let g:ctrlp_first_time = 0
+endfunction
+function! CtrlPWithEsc()
+  let g:ctrlp_first_time = 1
+  let g:ctrlp_buffer_func = {
+    \ 'exit':  'CtrlPExitFunc',
+    \ }
+  CtrlP()
+endfunction
+command CtrlPWithEsc call CtrlPWithEsc()
+
+function! LatexToPdf()
+  silent !/usr/texbin/pdflatex %
+  redraw!
 endfunction

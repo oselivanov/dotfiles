@@ -1,0 +1,82 @@
+# Author: Oleg Selivanov <oleg.a.selivanov@gmail.com>
+
+[user]
+  name = Oleg Selivanov
+  email = oleg.a.selivanov@gmail.com
+
+[core]
+  editor = vim
+
+[color]
+  status = auto
+  diff = auto
+  log = auto
+  branch = auto
+
+[alias]
+  st = status -s
+  diff = diff -M
+  l = !git --no-pager whatchanged -n 1
+  ch = checkout
+  co = commit
+  am = commit --amend
+  br = branch
+  ls = for-each-ref --sort=-committerdate --format='%(committerdate:short) %(color:red)%(objectname:short) %(color:green)%(refname:short)' refs/heads/
+  merge = merge --ff-only
+  pull = pull --ff-only
+  lg = !git --no-pager log -n 30 --branches --graph \
+      --date=relative \
+      --pretty=format:\"%h  %ad  %C(red)%ae%Creset%x09%C(green)%d %Creset%s\"
+  d = !sh -c \"git diff --color $1 $2 $3 $4 $5 $6 $7 $8 $9 | sed -e $'s/diff --git/\\\\\n-------------------------------------------------------------\\\\\n\\\\\ndiff --git/g' | less -R\"
+	mergetool3 = mergetool -t merge3
+	vault-mergetool3 = mergetool -t vault-merge3
+
+[diff]
+  tool = meld
+  #tool = vimdiff
+[difftool]
+  prompt = false
+[diff "ansible-vault"]
+  textconv = ansible-vault view
+  cachetextconv = false
+#[diff "jupyternotebook"]
+#  command = git-nbdiffdriver diff
+[difftool "meld"]
+  trustExitCode = true
+  cmd = open -W -a Meld --args \"$LOCAL\" \"$REMOTE\"
+[difftool "nbdime"]
+  cmd = git-nbdifftool diff \"$LOCAL\" \"$REMOTE\" \"$BASE\"
+[difftool "nbdiff"]
+  cmd = nbdiff-web \"$LOCAL\" \"$REMOTE\"
+
+[merge]
+  tool = meld
+  #tool = vimdiff
+[mergetool]
+  prompt = false
+[merge "jupyternotebook"]
+  driver = git-nbmergedriver merge %O %A %B %L %P
+  name = jupyter notebook merge driver
+[mergetool "merge3"]
+  cmd = vimdiff -c \"wincmd l\" \"$LOCAL\" \"$MERGED\" \"$REMOTE\"
+[mergetool "vault-merge3"]
+  cmd = ansible-vault-merge -- \"$LOCAL\" \"$MERGED\" \"$REMOTE\"
+[mergetool "nbdime"]
+  cmd = git-nbmergetool merge \"$BASE\" \"$LOCAL\" \"$REMOTE\" \"$MERGED\"
+[mergetool "meld"]
+  trustExitCode = true
+  cmd = open -W -a /Applications/Meld.app/Contents/MacOS/Meld --args --auto-merge \"$LOCAL\" \"$BASE\" \"$REMOTE\" --output=\"$MERGED\"
+
+[push]
+  default = matching
+
+[rebase]
+  autosquash = true
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[pull]
+	ff = only
